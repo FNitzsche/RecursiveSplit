@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class Line {
 
-    Random rnd = new Random();
+    static Random rnd = new Random();
 
     public float[] cL = new float[2];
     public float[] cH = new float[2];
@@ -74,6 +74,43 @@ public class Line {
     }
 
     public static double fitLine(float[] cL, float[] cH, ArrayList<int[]> indices, float[][][] image){
+        float[] cluster1 = {rnd.nextFloat(), rnd.nextFloat(), rnd.nextFloat()};
+        float[] cluster2 = {rnd.nextFloat(), rnd.nextFloat(), rnd.nextFloat()};
+        int cl1Count = 0;
+        int cl2Count = 0;
+
+        for (int i = 0; i < 5; i++){
+            float[] cl1Tmp = new float[3];
+            float[] cl2Tmp = new float[3];
+            for (int[] index: indices){
+                if (unsignedDistanceColor(image[index[0]][index[1]], cluster1) < unsignedDistanceColor(image[index[0]][index[1]], cluster2)){
+                    cl1Tmp[0] += image[index[0]][index[1]][0];
+                    cl1Tmp[1] += image[index[0]][index[1]][1];
+                    cl1Tmp[2] += image[index[0]][index[1]][2];
+                    cl1Count++;
+                } else {
+                    cl2Tmp[0] += image[index[0]][index[1]][0];
+                    cl2Tmp[1] += image[index[0]][index[1]][1];
+                    cl2Tmp[2] += image[index[0]][index[1]][2];
+                    cl2Count++;
+                }
+            }
+
+            if (cl1Count != 0) {
+                cluster1[0] = cl1Tmp[0] / cl1Count;
+                cluster1[1] = cl1Tmp[1] / cl1Count;
+                cluster1[2] = cl1Tmp[2] / cl1Count;
+            }
+
+            if (cl2Count != 0) {
+                cluster2[0] = cl2Tmp[0] / cl2Count;
+                cluster2[1] = cl2Tmp[1] / cl2Count;
+                cluster2[2] = cl2Tmp[2] / cl2Count;
+            }
+
+        }
+
+
         float[] midPoint = indices.stream().map(i -> image[i[0]][i[1]]).reduce(new float[3], (f1, f2) -> {
             f1[0] += f2[0];
             f1[1] += f2[1];
@@ -86,7 +123,7 @@ public class Line {
 
         double mid = Math.sqrt(Math.pow(midPoint[0], 2) + Math.pow(midPoint[1], 2) + Math.pow(midPoint[2], 2));
 
-        ArrayList<int[]> sortedI = indices.stream().sorted(Comparator.comparingDouble(i -> distanceColor(i, image, mid))).collect(Collectors.toCollection(ArrayList::new));
+        //ArrayList<int[]> sortedI = indices.stream().sorted(Comparator.comparingDouble(i -> distanceColor(i, image, mid))).collect(Collectors.toCollection(ArrayList::new));
 
         double averageDist = indices.parallelStream().map(ints -> Math.pow(distanceColor(ints, image, mid)*2, 2)).reduce(0.0, Double::sum);
         averageDist /= indices.size();
@@ -94,7 +131,7 @@ public class Line {
         float[] centerlow = new float[2];
         float[] centerHigh = new float[2];
 
-        for (int i = 0; i < sortedI.size()/2; i++){
+        /*for (int i = 0; i < sortedI.size()/2; i++){
             centerlow[0] += sortedI.get(i)[0];
             centerlow[1] += sortedI.get(i)[1];
         }
@@ -106,19 +143,39 @@ public class Line {
             centerHigh[1] += sortedI.get(i)[1];
         }
         centerHigh[0] /= sortedI.size()/2.0;
-        centerHigh[1] /= sortedI.size()/2.0;
+        centerHigh[1] /= sortedI.size()/2.0;*/
 
-        cL[0] = centerlow[0];
-        cL[1] = centerlow[1];
+        int clCount = 0;
+        int chCount = 0;
 
-        cH[0] = centerHigh[0];
-        cH[1] = centerHigh[1];
+        for (int[] index: indices){
+            if (unsignedDistanceColor(image[index[0]][index[1]], cluster1) < unsignedDistanceColor(image[index[0]][index[1]], cluster2)){
+                centerlow[0] += index[0];
+                centerlow[1] += index[1];
+                clCount++;
+            } else {
+                centerHigh[0] += index[0];
+                centerHigh[1] += index[1];
+                chCount++;
+            }
+        }
+
+
+        cL[0] = centerlow[0]/clCount;
+        cL[1] = centerlow[1]/clCount;
+
+        cH[0] = centerHigh[0]/chCount;
+        cH[1] = centerHigh[1]/chCount;
 
         return averageDist;
     }
 
     public static double distanceColor(int[] i, float[][][] image, double mid){
         return Math.sqrt(Math.pow(image[i[0]][i[1]][0], 2) + Math.pow(image[i[0]][i[1]][1], 2) + Math.pow(image[i[0]][i[1]][2], 2))-mid;
+    }
+
+    public static double unsignedDistanceColor(float[] color1, float[] color2){
+        return Math.sqrt(Math.pow(color1[0]-color2[0], 2) + Math.pow(color1[1]-color2[1], 2) + Math.pow(color1[2]-color2[2], 2));
     }
 
     public static double spaceDistance(int[] i, float[] center){
