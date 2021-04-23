@@ -126,8 +126,8 @@ public class Line {
 
         //ArrayList<int[]> sortedI = indices.stream().sorted(Comparator.comparingDouble(i -> distanceColor(i, image, mid))).collect(Collectors.toCollection(ArrayList::new));
 
-        double averageDist = indices.parallelStream().map(ints -> Math.pow((distanceColor(ints, image, mid)*3), 4)).reduce(0.0, Double::sum);
-        averageDist /= indices.size();
+        double averageDist = indices.parallelStream().map(ints -> Math.pow((distanceColor(ints, image, mid)*4), 4)).reduce(0.0, Double::sum);
+        averageDist /= Math.sqrt(indices.size())*Math.min(indices.size(), 50);
 
         float[] centerlow = new float[2];
         float[] centerHigh = new float[2];

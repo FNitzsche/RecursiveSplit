@@ -45,7 +45,7 @@ public class MainScreenCon {
     }
 
     public void drawImage(Image image){
-        Platform.runLater(() -> canvas.getGraphicsContext2D().drawImage(image, 0, 0));
+        Platform.runLater(() -> canvas.getGraphicsContext2D().drawImage(image, 0, 0, 1280, 720));
     }
 
     public void recalcLines(){
@@ -57,7 +57,7 @@ public class MainScreenCon {
                 if (img != null) {
                     Platform.runLater(() -> {
                         shownImage = img;
-                        canvas.getGraphicsContext2D().drawImage(img, 0, 0);
+                        canvas.getGraphicsContext2D().drawImage(img, 0, 0, 1280, 720);
                     });
                 }
             }
@@ -73,7 +73,7 @@ public class MainScreenCon {
                 if (img != null) {
                     Platform.runLater(() -> {
                         shownImage = img;
-                        canvas.getGraphicsContext2D().drawImage(img, 0, 0);
+                        canvas.getGraphicsContext2D().drawImage(img, 0, 0, 1280, 720);
                     });
                 }
             }

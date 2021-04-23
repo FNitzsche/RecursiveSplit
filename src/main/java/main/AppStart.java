@@ -20,8 +20,8 @@ public class AppStart extends Application {
 
     public static final float minDist = 0.05f;
 
-    public static final int targetrX = 1280;
-    public static final int targetrY = 720;
+    public static final int targetrX = 1920;
+    public static final int targetrY = 1080;
 
     public static int rX = targetrX;
     public static int rY = targetrY;
