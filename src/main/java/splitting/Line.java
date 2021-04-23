@@ -27,8 +27,17 @@ public class Line {
     public boolean closeEnough = false;
     public double lod = 1;
 
-    public void setParams(ArrayList<int[]> indices){
+    public void setParams(ArrayList<int[]> indices, float[][][] image){
         allIndices = indices;
+        color = allIndices.stream().map(ints -> image[ints[0]][ints[1]]).reduce(new float[3], (f1, f2)-> {
+            f1[0] += f2[0];
+            f1[1] += f2[1];
+            f1[2] += f2[2];
+            return f1;
+        });
+        color[0] /= allIndices.size();
+        color[1] /= allIndices.size();
+        color[2] /= allIndices.size();
     }
 
     public void devide(float[][][] image, float minDist){
@@ -39,20 +48,11 @@ public class Line {
     }
 
     public void children(int genLeft, float[][][] image, float minDist){
-        color = allIndices.stream().map(ints -> image[ints[0]][ints[1]]).reduce(new float[3], (f1, f2)-> {
-            f1[0] += f2[0];
-            f1[1] += f2[1];
-            f1[2] += f2[2];
-            return f1;
-        });
-        color[0] /= allIndices.size();
-        color[1] /= allIndices.size();
-        color[2] /= allIndices.size();
         if (genLeft > 0 && !closeEnough) {
             sectionOne = new Line();
             sectionTwo = new Line();
-            sectionOne.setParams(sectionOneIndices);
-            sectionTwo.setParams(sectionTwoIndices);
+            sectionOne.setParams(sectionOneIndices, image);
+            sectionTwo.setParams(sectionTwoIndices, image);
             sectionOne.devide(image, minDist);
             sectionTwo.devide(image, minDist);
             Line[] tmp = {sectionOne, sectionTwo};
@@ -76,10 +76,11 @@ public class Line {
     public static double fitLine(float[] cL, float[] cH, ArrayList<int[]> indices, float[][][] image){
         float[] cluster1 = {rnd.nextFloat(), rnd.nextFloat(), rnd.nextFloat()};
         float[] cluster2 = {rnd.nextFloat(), rnd.nextFloat(), rnd.nextFloat()};
-        int cl1Count = 0;
-        int cl2Count = 0;
+
 
         for (int i = 0; i < 5; i++){
+            int cl1Count = 0;
+            int cl2Count = 0;
             float[] cl1Tmp = new float[3];
             float[] cl2Tmp = new float[3];
             for (int[] index: indices){
@@ -96,13 +97,13 @@ public class Line {
                 }
             }
 
-            if (cl1Count != 0) {
+            if (cl1Count > 0) {
                 cluster1[0] = cl1Tmp[0] / cl1Count;
                 cluster1[1] = cl1Tmp[1] / cl1Count;
                 cluster1[2] = cl1Tmp[2] / cl1Count;
             }
 
-            if (cl2Count != 0) {
+            if (cl2Count > 0) {
                 cluster2[0] = cl2Tmp[0] / cl2Count;
                 cluster2[1] = cl2Tmp[1] / cl2Count;
                 cluster2[2] = cl2Tmp[2] / cl2Count;
@@ -125,7 +126,7 @@ public class Line {
 
         //ArrayList<int[]> sortedI = indices.stream().sorted(Comparator.comparingDouble(i -> distanceColor(i, image, mid))).collect(Collectors.toCollection(ArrayList::new));
 
-        double averageDist = indices.parallelStream().map(ints -> Math.pow(distanceColor(ints, image, mid)*2, 2)).reduce(0.0, Double::sum);
+        double averageDist = indices.parallelStream().map(ints -> Math.pow((distanceColor(ints, image, mid)*3), 4)).reduce(0.0, Double::sum);
         averageDist /= indices.size();
 
         float[] centerlow = new float[2];
@@ -161,11 +162,15 @@ public class Line {
         }
 
 
-        cL[0] = centerlow[0]/clCount;
-        cL[1] = centerlow[1]/clCount;
+        if (clCount > 0) {
+            cL[0] = centerlow[0] / clCount;
+            cL[1] = centerlow[1] / clCount;
+        }
 
-        cH[0] = centerHigh[0]/chCount;
-        cH[1] = centerHigh[1]/chCount;
+        if (chCount > 0) {
+            cH[0] = centerHigh[0] / chCount;
+            cH[1] = centerHigh[1] / chCount;
+        }
 
         return averageDist;
     }

@@ -66,7 +66,7 @@ public class AppStart extends Application {
         long s = System.currentTimeMillis();
 
         baseLine = new Line();
-        baseLine.setParams(baseIndices);
+        baseLine.setParams(baseIndices, imgArray);
         baseLine.devide(imgArray, maxLod);
         baseLine.children(iter, imgArray, maxLod);
 
@@ -74,7 +74,7 @@ public class AppStart extends Application {
     }
 
     public Image rePaint(float minDist){
-        if (img == null){
+        if (img == null || lineImage == null){
             return null;
         }
         baseLine.paintImage(lineImage, minDist);

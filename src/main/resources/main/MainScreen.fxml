@@ -72,6 +72,7 @@
               </rowConstraints>
                <children>
                   <Button fx:id="load" mnemonicParsing="false" text="Load Image" />
+                  <Button fx:id="save" mnemonicParsing="false" text="Save Image" GridPane.columnIndex="1" />
                </children>
             </GridPane>
          </children>
