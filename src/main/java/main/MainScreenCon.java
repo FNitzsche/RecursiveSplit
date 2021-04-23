@@ -6,6 +6,9 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
+import javafx.stage.FileChooser;
+
+import java.io.File;
 
 public class MainScreenCon {
 
@@ -27,6 +30,8 @@ public class MainScreenCon {
     String imgPath;
 
     Image shownImage;
+
+    FileChooser fileChooser = new FileChooser();
 
     public void initialize(){
         lod.setOnMouseReleased(e -> lodChange());
@@ -73,7 +78,19 @@ public class MainScreenCon {
     }
 
     public void loadImage(){
-        
+        File file = fileChooser.showOpenDialog(appStart.mainStage);
+        imgPath = file.getAbsolutePath();
+        Runnable run = new Runnable() {
+            @Override
+            public void run() {
+                appStart.loadImage(file.getAbsolutePath());
+                    Platform.runLater(() -> {
+                        drawImage(appStart.img);
+                    });
+            }
+        };
+        appStart.exe.execute(run);
+
     }
 
 

@@ -39,8 +39,11 @@ public class AppStart extends Application {
 
     Line baseLine;
 
+    public Stage mainStage;
+
     @Override
     public void start(Stage stage) throws Exception {
+        mainStage = stage;
         mainScreen.getController(MainScreenCon.class).appStart = this;
         stage.setScene(mainScreen.getScene());
         stage.show();
