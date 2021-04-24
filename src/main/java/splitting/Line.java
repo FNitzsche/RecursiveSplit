@@ -10,12 +10,12 @@ import java.util.stream.Collectors;
 
 public class Line {
 
-    static Random rnd = new Random();
+    //static Random rnd = new Random();
 
     public float[] cL = new float[2];
     public float[] cH = new float[2];
 
-    public float[] color = {rnd.nextFloat(), rnd.nextFloat(), rnd.nextFloat()};
+    public float[] color = {0, 0, 0};
 
     public ArrayList<int[]> allIndices = new ArrayList<>();
     public ArrayList<int[]> sectionOneIndices = new ArrayList<>();
@@ -74,8 +74,8 @@ public class Line {
     }
 
     public static double fitLine(float[] cL, float[] cH, ArrayList<int[]> indices, float[][][] image){
-        float[] cluster1 = {rnd.nextFloat(), rnd.nextFloat(), rnd.nextFloat()};
-        float[] cluster2 = {rnd.nextFloat(), rnd.nextFloat(), rnd.nextFloat()};
+        float[] cluster1 = {0, 0, 0};
+        float[] cluster2 = {1, 1, 1};
 
 
         for (int i = 0; i < 5; i++){
