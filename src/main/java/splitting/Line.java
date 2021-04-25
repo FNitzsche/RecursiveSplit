@@ -74,8 +74,10 @@ public class Line {
     }
 
     public static double fitLine(float[] cL, float[] cH, ArrayList<int[]> indices, float[][][] image){
-        float[] cluster1 = {0, 0, 0};
-        float[] cluster2 = {1, 1, 1};
+        float[] cluster1 = {0.49f, 0.49f, 0.49f};
+        float[] cluster2 = {0.5f, 0.5f, 0.5f};
+
+        boolean oneEmpty = false;
 
 
         for (int i = 0; i < 5; i++){
@@ -101,12 +103,16 @@ public class Line {
                 cluster1[0] = cl1Tmp[0] / cl1Count;
                 cluster1[1] = cl1Tmp[1] / cl1Count;
                 cluster1[2] = cl1Tmp[2] / cl1Count;
+            } else {
+                oneEmpty = true;
             }
 
             if (cl2Count > 0) {
                 cluster2[0] = cl2Tmp[0] / cl2Count;
                 cluster2[1] = cl2Tmp[1] / cl2Count;
                 cluster2[2] = cl2Tmp[2] / cl2Count;
+            } else {
+                oneEmpty = true;
             }
 
         }
@@ -124,52 +130,60 @@ public class Line {
 
         double mid = Math.sqrt(Math.pow(midPoint[0], 2) + Math.pow(midPoint[1], 2) + Math.pow(midPoint[2], 2));
 
-        //ArrayList<int[]> sortedI = indices.stream().sorted(Comparator.comparingDouble(i -> distanceColor(i, image, mid))).collect(Collectors.toCollection(ArrayList::new));
-
-        double averageDist = indices.parallelStream().map(ints -> Math.pow((distanceColor(ints, image, mid)*4), 4)).reduce(0.0, Double::sum);
+        double averageDist = indices.parallelStream().map(ints -> Math.pow((distanceColor(ints, image, mid)*2), 2)).reduce(0.0, Double::sum);
         averageDist /= Math.sqrt(indices.size())*Math.min(indices.size(), 50);
 
         float[] centerlow = new float[2];
         float[] centerHigh = new float[2];
 
-        /*for (int i = 0; i < sortedI.size()/2; i++){
-            centerlow[0] += sortedI.get(i)[0];
-            centerlow[1] += sortedI.get(i)[1];
-        }
-        centerlow[0] /= sortedI.size()/2.0;
-        centerlow[1] /= sortedI.size()/2.0;
+        if (oneEmpty) {
+            ArrayList<int[]> sortedI = indices.stream().sorted(Comparator.comparingDouble(i -> distanceColor(i, image, mid))).collect(Collectors.toCollection(ArrayList::new));
 
-        for (int i = sortedI.size()/2; i < sortedI.size(); i++){
-            centerHigh[0] += sortedI.get(i)[0];
-            centerHigh[1] += sortedI.get(i)[1];
-        }
-        centerHigh[0] /= sortedI.size()/2.0;
-        centerHigh[1] /= sortedI.size()/2.0;*/
-
-        int clCount = 0;
-        int chCount = 0;
-
-        for (int[] index: indices){
-            if (unsignedDistanceColor(image[index[0]][index[1]], cluster1) < unsignedDistanceColor(image[index[0]][index[1]], cluster2)){
-                centerlow[0] += index[0];
-                centerlow[1] += index[1];
-                clCount++;
-            } else {
-                centerHigh[0] += index[0];
-                centerHigh[1] += index[1];
-                chCount++;
+            for (int i = 0; i < sortedI.size()/2; i++){
+                centerlow[0] += sortedI.get(i)[0];
+                centerlow[1] += sortedI.get(i)[1];
             }
-        }
+            centerlow[0] /= sortedI.size()/2.0;
+            centerlow[1] /= sortedI.size()/2.0;
+
+            for (int i = sortedI.size()/2; i < sortedI.size(); i++){
+                centerHigh[0] += sortedI.get(i)[0];
+                centerHigh[1] += sortedI.get(i)[1];
+            }
+            centerHigh[0] /= sortedI.size()/2.0;
+            centerHigh[1] /= sortedI.size()/2.0;
+
+            cL[0] = centerlow[0];
+            cL[1] = centerlow[1];
+            cH[0] = centerHigh[0];
+            cH[1] = centerHigh[1];
+        } else {
+
+            int clCount = 0;
+            int chCount = 0;
+
+            for (int[] index : indices) {
+                if (unsignedDistanceColor(image[index[0]][index[1]], cluster1) < unsignedDistanceColor(image[index[0]][index[1]], cluster2)) {
+                    centerlow[0] += index[0];
+                    centerlow[1] += index[1];
+                    clCount++;
+                } else {
+                    centerHigh[0] += index[0];
+                    centerHigh[1] += index[1];
+                    chCount++;
+                }
+            }
 
 
-        if (clCount > 0) {
-            cL[0] = centerlow[0] / clCount;
-            cL[1] = centerlow[1] / clCount;
-        }
+            if (clCount > 0) {
+                cL[0] = centerlow[0] / clCount;
+                cL[1] = centerlow[1] / clCount;
+            }
 
-        if (chCount > 0) {
-            cH[0] = centerHigh[0] / chCount;
-            cH[1] = centerHigh[1] / chCount;
+            if (chCount > 0) {
+                cH[0] = centerHigh[0] / chCount;
+                cH[1] = centerHigh[1] / chCount;
+            }
         }
 
         return averageDist;

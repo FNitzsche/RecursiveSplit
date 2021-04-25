@@ -55,8 +55,8 @@ public class AppStart extends Application {
         }
         imgArray = new float[(int)img.getWidth()][(int)img.getHeight()][3];
         lineImage = new float[(int)img.getWidth()][(int)img.getHeight()][3];
-        for (int i = 0; i < img.getWidth(); i++){
-            for (int j = 0; j < img.getHeight(); j++){
+        for (int i = 0; i < (int)img.getWidth(); i++){
+            for (int j = 0; j < (int)img.getHeight(); j++){
                 imgArray[i][j][0] = (float) img.getPixelReader().getColor(i, j).getRed();
                 imgArray[i][j][1] = (float) img.getPixelReader().getColor(i, j).getGreen();
                 imgArray[i][j][2] = (float) img.getPixelReader().getColor(i, j).getBlue();
@@ -91,6 +91,7 @@ public class AppStart extends Application {
 
     public void loadImage(String path){
         img = new Image("file:\\" + path, targetrX, targetrY, true, true);
+        lineImage = null;
     }
 
 }
