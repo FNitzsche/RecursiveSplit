@@ -14,3 +14,6 @@ gradle-app.setting
 # gradle/wrapper/gradle-wrapper.properties
 
 testImage/*
+
+.idea/*
+gradle/wrapper/*
